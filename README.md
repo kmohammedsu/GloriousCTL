@@ -2,10 +2,44 @@
 
 A native macOS configuration app for the wired **Glorious Model O**, covering the
 settings the Windows-only Glorious software exposes: button remapping, DPI
-stages, polling rate, RGB lighting, macros, and profiles.
+stages, RGB lighting, macros, and profiles.
 
 Everything is written to the mouse's **onboard memory**, so settings persist
 across reboots and follow the mouse to other computers.
+
+![GloriousCTL main window — sidebar of configuration sections, an interactive
+render of the Model O with numbered controls, and an inspector for the selected
+button](Assets/GloriousCTL-1.4-preview.png)
+
+---
+
+## Install
+
+**Requirements:** macOS 13 Ventura or later · Apple silicon or Intel · a wired Glorious Model O
+
+1. Download **`GloriousCTL-1.0.0.zip`** from the
+   [latest release](https://github.com/kmohammedsu/GloriousCTL/releases/latest).
+2. Unzip it and drag **GloriousCTL.app** into your **Applications** folder.
+3. Open it. You should see no security warning: the app is signed with a
+   Developer ID certificate and notarized by Apple, so there is no
+   right-click-Open dance and **you do not need an Apple Developer account**.
+4. Grant **Input Monitoring**, then quit and reopen the app. This step is not
+   optional — see [The one thing you must do first](#the-one-thing-you-must-do-first).
+
+Prefer to compile it yourself? See [Building](#building).
+
+### Verifying the download
+
+The release is notarized, so macOS checks it for you. To confirm by hand:
+
+```bash
+spctl --assess --type execute --verbose=2 /Applications/GloriousCTL.app
+```
+
+```
+/Applications/GloriousCTL.app: accepted
+source=Notarized Developer ID
+```
 
 ---
 
@@ -212,6 +246,11 @@ workflow from the macOS Shortcuts app. Rings and gestures can coexist on the
 side buttons. The middle ring is enabled by default; the two side rings are
 opt-in. These features require the separate **Accessibility** permission shown
 in their panels.
+
+![An Action Ring open over the desktop: eight labelled shortcuts arranged
+radially — Mission Control, Application Windows, Show Desktop, Launchpad,
+Spotlight, Screenshot Selection, Lock Screen and Play/Pause — with the hovered
+item highlighted](Assets/ActionRing-preview.png)
 
 Shortcut-backed actions now read the current key assignment from macOS rather
 than assuming Apple's default. An action whose shortcut is disabled is called
