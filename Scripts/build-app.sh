@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG="${1:-release}"
-VERSION="${GLORIOUSCTL_VERSION:-1.5.0}"
+VERSION="${GLORIOUSCTL_VERSION:-1.0.0}"
 APP="$ROOT/build/GloriousCTL.app"
 SWIFT_FLAGS=(--disable-sandbox)
 ARCH_FLAGS=()

@@ -138,11 +138,11 @@ Configure these GitHub Actions repository secrets before pushing a version tag:
 Create a release by pushing a semantic version tag:
 
 ```bash
-git tag v1.5.0
-git push origin v1.5.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
-The workflow publishes `GloriousCTL-1.5.0.zip`. Gatekeeper can verify the
+The workflow publishes `GloriousCTL-1.0.0.zip`. Gatekeeper can verify the
 Developer ID signature and stapled Apple notarization ticket without requiring
 anything from the person installing it.
 
