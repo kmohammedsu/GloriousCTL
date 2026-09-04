@@ -1,0 +1,13 @@
+*.cer
+*.csr
+*.key
+*.p12
+*.p12.base64
+*.p8
+*.p8.base64
+*.provisionprofile
+.DS_Store
+.build/
+.swiftpm/
+build/
+p12-password.txt
