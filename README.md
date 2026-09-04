@@ -1,5 +1,13 @@
 # GloriousCTL
 
+[![Latest release](https://img.shields.io/github/v/release/kmohammedsu/GloriousCTL?style=flat-square&color=e8a33d)](https://github.com/kmohammedsu/GloriousCTL/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/kmohammedsu/GloriousCTL/total?style=flat-square&color=e8a33d)](https://github.com/kmohammedsu/GloriousCTL/releases)
+[![Release build](https://img.shields.io/github/actions/workflow/status/kmohammedsu/GloriousCTL/release.yml?style=flat-square&label=release%20build)](https://github.com/kmohammedsu/GloriousCTL/actions/workflows/release.yml)
+[![Signed and notarized](https://img.shields.io/badge/signed%20%26%20notarized-Apple-4c9a4c?style=flat-square&logo=apple&logoColor=white)](#verifying-the-download)
+[![macOS 13+](https://img.shields.io/badge/macOS-13%2B-555?style=flat-square&logo=apple&logoColor=white)](#install)
+[![Universal](https://img.shields.io/badge/universal-arm64%20%2B%20x86__64-555?style=flat-square)](#install)
+[![License: MIT](https://img.shields.io/badge/license-MIT-informational?style=flat-square)](LICENSE)
+
 A native macOS configuration app for the wired **Glorious Model O**, covering the
 settings the Windows-only Glorious software exposes: button remapping, DPI
 stages, RGB lighting, macros, and profiles.
