@@ -340,8 +340,26 @@ public final class GestureEngine: ObservableObject {
 
   /// Direction and speed both act on the wheel only. Continuous events come from the
   /// trackpad and are left exactly as macOS produced them.
+  /// Only the first few are logged; a scroll produces a torrent of events.
+  private var scrollLogBudget = 8
+
   private func adjustDiscreteScrollIfNeeded(_ event: CGEvent) {
     let isContinuous = event.getIntegerValueField(.scrollWheelEventIsContinuous) != 0
+
+    if scrollLogBudget > 0 {
+      scrollLogBudget -= 1
+      Self.log(
+        String(
+          format: "scroll in: line=%d point=%.2f fixed=%.2f continuous=%d "
+            + "| reverse=%@ speed=%.1f",
+          event.getIntegerValueField(.scrollWheelEventDeltaAxis1),
+          event.getDoubleValueField(.scrollWheelEventPointDeltaAxis1),
+          event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1),
+          isContinuous,
+          separateMouseScrolling ? "yes" : "no",
+          scrollSpeed))
+    }
+
     guard !isContinuous else { return }
 
     let reverse = Self.shouldReverseScroll(
@@ -351,19 +369,35 @@ public final class GestureEngine: ObservableObject {
     guard reverse || speed != 1 else { return }
 
     let sign: Double = reverse ? -1 : 1
+    var changedALine = false
 
+    // For a wheel event the line delta is authoritative: macOS recomputes the point
+    // and fixed-point deltas from it and discards anything written to them directly.
     for field in Self.lineDeltaFields {
       let value = event.getIntegerValueField(field)
       guard value != 0, value != .min else { continue }
       var updated = Self.scaledScrollDelta(value, speed: speed)
       if reverse { updated = -updated }
       event.setIntegerValueField(field, value: updated)
+      changedALine = true
     }
 
+    // Only events with no whole notches — free-spinning wheels and pixel-precise
+    // devices — need the sub-notch deltas adjusted, since nothing recomputes them.
+    guard !changedALine else { return }
     for field in Self.preciseDeltaFields {
       let value = event.getDoubleValueField(field)
       guard value != 0 else { continue }
       event.setDoubleValueField(field, value: value * speed * sign)
+    }
+
+    if scrollLogBudget > 0 {
+      Self.log(
+        String(
+          format: "scroll out: line=%d point=%.2f fixed=%.2f",
+          event.getIntegerValueField(.scrollWheelEventDeltaAxis1),
+          event.getDoubleValueField(.scrollWheelEventPointDeltaAxis1),
+          event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)))
     }
   }
 
