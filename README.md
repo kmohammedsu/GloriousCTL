@@ -222,7 +222,15 @@ bypass.
 
 ## The app opens but says no mouse is connected
 
-Work through these in order — the first two fix almost every case.
+If you see this screen, the app is working fine — macOS simply hasn't been told to
+let it talk to the mouse yet:
+
+![The app showing a padlock and the message "macOS is blocking access to the mouse",
+with buttons to open Input Monitoring settings or try again, and a Disconnected
+badge in the corner](Assets/permission-blocked.jpg)
+
+Click **Open Input Monitoring Settings**, enable GloriousCTL, then quit and reopen
+the app. If that doesn't do it, work through these in order.
 
 **1. Did you grant Input Monitoring *and* restart the app?**
 This is the answer the overwhelming majority of the time. Go back to
