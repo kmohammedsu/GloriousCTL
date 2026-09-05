@@ -19,7 +19,7 @@ restarts, and they follow the mouse if you plug it into a different computer.
 
 ![The GloriousCTL main window: a sidebar of configuration sections on the left, an
 interactive picture of the Model O with numbered buttons in the middle, and an
-inspector panel for the selected button on the right](Assets/feature-buttons.jpg)
+inspector panel for the selected button on the right](Assets/panel-buttons.jpg)
 
 ---
 
@@ -385,7 +385,7 @@ at a glance which stage you're on. The currently active stage is marked, and the
 value is shown at the bottom.
 
 ![The DPI & sensor panel: six DPI stages with per-stage colour swatches, the active
-stage marked, and a slider for the selected stage](Assets/feature-dpi.jpg)
+stage marked, and a slider for the selected stage](Assets/panel-dpi.jpg)
 
 ### RGB lighting
 
@@ -393,7 +393,7 @@ Pick an effect, then set brightness and speed. Changes are written to the mouse,
 the lighting stays the same on any computer you plug it into.
 
 ![The Lighting panel: an effect dropdown set to Glorious Mode, with brightness and
-speed sliders](Assets/feature-lighting.jpg)
+speed sliders](Assets/panel-lighting.jpg)
 
 ### Action Rings
 
@@ -408,7 +408,7 @@ item highlighted](Assets/ActionRing-preview.png)
 
 ![The Actions Ring panel: a live ring preview with the items on their compass
 slots, an Add item button, and the list of slots below with action menus and
-optional labels](Assets/feature-actionring.jpg)
+optional labels](Assets/panel-actionring.jpg)
 
 **A live preview sits next to the list**, showing the ring exactly as it will appear.
 Click a bubble to jump to its row, or drag one onto another slot to change the order.
@@ -459,7 +459,7 @@ wheel sends discrete steps and macOS moves a fixed few lines per step, which fee
 next to a trackpad. Like the direction fix, it only touches the wheel.
 
 ![The Scrolling panel: a Fix mouse wheel direction toggle and a Scroll speed slider,
-with a note that trackpad gestures pass through unchanged](Assets/feature-scrolling.jpg)
+with a note that trackpad gestures pass through unchanged](Assets/panel-scrolling.jpg)
 
 ### Honest about what isn't decoded
 
@@ -469,7 +469,7 @@ guessing. The Protocol Inspector lets you help find them.
 
 ![The Advanced panel: lift-off distance, debounce time, motion sync and USB polling
 rate listed as not safely decoded, with a button to open the Protocol
-Inspector](Assets/feature-advanced.jpg)
+Inspector](Assets/panel-advanced.jpg)
 
 These settings exist in the Windows software, but where the mouse stores them hasn't
 been identified yet. Writing to a guessed location would change something else
@@ -487,7 +487,7 @@ that app comes to the front. Switching is debounced and skipped when the device
 already matches, so it doesn't write to the mouse more than it needs to.
 
 ![The App profiles panel with automatic switching enabled, showing the frontmost
-application being detected live](Assets/feature-appprofiles.jpg)
+application being detected live](Assets/panel-appprofiles.jpg)
 
 ### Macros and profiles
 
