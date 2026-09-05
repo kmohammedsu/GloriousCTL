@@ -7,6 +7,12 @@ public enum ActionDispatcher {
 
   public static let syntheticMarker: Int64 = 0x47_4C_4F_52
 
+  /// Diagnostic logging from nonisolated code: `GestureEngine.log` is main-actor
+  /// isolated, so hop across rather than blocking here.
+  private static func diagLog(_ message: String) {
+    Task { @MainActor in GestureEngine.log(message) }
+  }
+
   @discardableResult
   public static func perform(_ action: MacAction) -> Bool {
     if let notification = action.dockNotification,
@@ -29,9 +35,14 @@ public enum ActionDispatcher {
       return true
     }
     if let stroke = SystemShortcuts.keystroke(for: action) {
+      diagLog(
+        String(
+          format: "  keystroke branch: %@ key=0x%02X flags=0x%llX",
+          action.displayName, Int(stroke.key), stroke.flags.rawValue))
       postKeystroke(key: stroke.key, flags: stroke.flags)
       return true
     }
+    diagLog("  no keystroke for \(action.displayName)")
     if let media = action.mediaKey {
       postMediaKey(media)
       return true
@@ -114,33 +125,55 @@ public enum ActionDispatcher {
 
   public static func postKeystroke(key: CGKeyCode, flags: CGEventFlags) {
     let src = source()
+    if src == nil { diagLog("  WARNING: event source is nil") }
     let held = modifierKeys.filter { flags.contains($0.flag) }
+    var posted = 0
 
     func post(_ event: CGEvent?, flags: CGEventFlags) {
-      guard let event else { return }
+      guard let event else {
+        diagLog("  WARNING: could not create key event")
+        return
+      }
       event.flags = flags
       event.setIntegerValueField(.eventSourceUserData, value: syntheticMarker)
       event.post(tap: .cghidEventTap)
+      posted += 1
     }
+    defer { diagLog("  posted \(posted) key events") }
 
-    var accumulated: CGEventFlags = []
-    for modifier in held {
-      accumulated.insert(modifier.flag)
-      post(
-        CGEvent(keyboardEventSource: src, virtualKey: modifier.key, keyDown: true),
-        flags: accumulated)
-    }
+    // Posted back to back, the arrow can be processed before the window server has
+    // registered the modifier keydown, so a system shortcut sees a bare arrow key and
+    // ignores it. Spacing the events lets the modifier state settle first. This runs
+    // off the main thread so the pauses never stall the UI.
+    let gap: UInt32 = 12_000  // microseconds
 
-    post(CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: true), flags: flags)
-    post(CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: false), flags: flags)
+    postingQueue.async {
+      var accumulated: CGEventFlags = []
+      for modifier in held {
+        accumulated.insert(modifier.flag)
+        post(
+          CGEvent(keyboardEventSource: src, virtualKey: modifier.key, keyDown: true),
+          flags: accumulated)
+        usleep(gap)
+      }
 
-    for modifier in held.reversed() {
-      accumulated.remove(modifier.flag)
-      post(
-        CGEvent(keyboardEventSource: src, virtualKey: modifier.key, keyDown: false),
-        flags: accumulated)
+      post(CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: true), flags: flags)
+      usleep(gap)
+      post(CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: false), flags: flags)
+      usleep(gap)
+
+      for modifier in held.reversed() {
+        accumulated.remove(modifier.flag)
+        post(
+          CGEvent(keyboardEventSource: src, virtualKey: modifier.key, keyDown: false),
+          flags: accumulated)
+      }
     }
   }
+
+  /// Serial so two overlapping actions cannot interleave their modifier keys.
+  private static let postingQueue = DispatchQueue(
+    label: "gloriousctl.keystroke", qos: .userInitiated)
 
   private static func postMediaKey(_ keyType: Int32) {
     for isDown in [true, false] {
