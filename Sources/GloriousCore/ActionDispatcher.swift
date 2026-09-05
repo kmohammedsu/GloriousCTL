@@ -34,6 +34,18 @@ public enum ActionDispatcher {
     {
       return true
     }
+    // Desktop switching goes straight to the window server. Synthesising the
+    // Ctrl+arrow that macOS binds to it is unreliable and depends on a shortcut the
+    // user may have unbound, so the keystroke is only a fallback here.
+    if let direction = action.spaceDirection, SpaceSwitcher.isAvailable {
+      if SpaceSwitcher.move(direction) {
+        diagLog("  \(action.displayName) via window server")
+        return true
+      }
+      diagLog("  \(action.displayName): already at the last desktop")
+      return true
+    }
+
     if let stroke = SystemShortcuts.keystroke(for: action) {
       diagLog(
         String(

@@ -157,6 +157,15 @@ public enum MacAction: Codable, Hashable, Sendable, CaseIterable {
     static let equal: CGKeyCode = 0x18
   }
 
+  /// Desktop moves are performed directly rather than through a keyboard shortcut.
+  public var spaceDirection: SpaceSwitcher.Direction? {
+    switch self {
+    case .spaceLeft: return .left
+    case .spaceRight: return .right
+    default: return nil
+    }
+  }
+
   public var keystroke: (key: CGKeyCode, flags: CGEventFlags)? {
     switch self {
     case .missionControl: return (Key.upArrow, .maskControl)
