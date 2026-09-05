@@ -315,17 +315,78 @@ on, and which Model O variant you have.
 
 ## Features
 
-- **Button remapping** — all six controls, reassignable to mouse buttons, keyboard
-  shortcuts, DPI actions, or macros
-- **DPI stages** — six stages, each with its own indicator colour
-- **RGB lighting** — effects, brightness, and speed
-- **Macros** — record and assign
+### Remap every button
+
+Click a numbered control on the mouse diagram and reassign it — to another mouse
+button, a keyboard shortcut, a DPI action, or a recorded macro. All six controls are
+remappable, and the assignment is written to the mouse's own memory.
+
+*(Shown in the screenshot at the top of this page.)*
+
+### DPI stages and sensor
+
+Six DPI stages from 400 to 10,000, each with its own indicator colour so you can see
+at a glance which stage you're on. The currently active stage is marked, and the live
+value is shown at the bottom.
+
+![The DPI & sensor panel: six DPI stages with per-stage colour swatches, the active
+stage marked, and a slider for the selected stage](Assets/feature-dpi.jpg)
+
+### RGB lighting
+
+Pick an effect, then set brightness and speed. Changes are written to the mouse, so
+the lighting stays the same on any computer you plug it into.
+
+![The Lighting panel: an effect dropdown set to Glorious Mode, with brightness and
+speed sliders](Assets/feature-lighting.jpg)
+
+### Action Rings
+
+Hold a button and a radial menu appears over whatever app you're in. Each ring holds
+up to eight slots, and a slot can run a built-in Mac action, open an app, file or
+folder, open a URL, or trigger a macOS Shortcuts workflow.
+
+![An Action Ring open over the desktop: eight labelled shortcuts arranged
+radially — Mission Control, Application Windows, Show Desktop, Launchpad,
+Spotlight, Screenshot Selection, Lock Screen and Play/Pause — with the hovered
+item highlighted](Assets/ActionRing-preview.png)
+
+![The Actions Ring editor: a list of configurable slots with action dropdowns,
+optional labels, and a hold-delay slider](Assets/feature-actionring.jpg)
+
+### Gestures
+
+Reserve the middle or side buttons for directional actions: hold, drag, and release.
+A quick click without dragging still does its normal job, so you don't lose the
+button.
+
+![The Gestures panel: checkboxes to reserve Side Back, Side Forward and Middle Click
+for directional actions](Assets/feature-gestures.jpg)
+
+### Scroll direction, fixed properly
+
+macOS applies one scroll direction to everything. This flips the mouse wheel **without**
+inverting your trackpad — trackpad gestures pass through untouched, and only discrete
+wheel steps are reversed.
+
+![The Scrolling panel: a Fix mouse wheel direction toggle, with a note that trackpad
+gestures pass through unchanged](Assets/feature-scrolling.jpg)
+
+### Honest about what isn't decoded
+
+Lift-off distance, debounce, motion sync, and USB polling rate haven't been safely
+located in the mouse's memory yet, so the app refuses to touch them rather than
+guessing. The Protocol Inspector lets you help find them.
+
+![The Advanced panel: lift-off distance, debounce time, motion sync and USB polling
+rate listed as not safely decoded, with a button to open the Protocol
+Inspector](Assets/feature-advanced.jpg)
+
+### Also included
+
+- **Macros** — record and assign to any button
 - **Profiles** — save configurations and switch between them
 - **App profiles** — switch automatically depending on which app is in front
-- **Gestures** — drag a button to trigger an action; a quick click still clicks
-- **Action Rings** — hold a button for a radial menu of shortcuts
-- **Protocol Inspector** — for the curious: view, snapshot, and compare the mouse's
-  raw configuration
 
 ## Gestures and Action Rings
 
@@ -342,10 +403,6 @@ side buttons. The middle ring is enabled by default; the two side rings are
 opt-in. These features require the separate **Accessibility** permission shown
 in their panels.
 
-![An Action Ring open over the desktop: eight labelled shortcuts arranged
-radially — Mission Control, Application Windows, Show Desktop, Launchpad,
-Spotlight, Screenshot Selection, Lock Screen and Play/Pause — with the hovered
-item highlighted](Assets/ActionRing-preview.png)
 
 Shortcut-backed actions now read the current key assignment from macOS rather
 than assuming Apple's default. An action whose shortcut is disabled is called
