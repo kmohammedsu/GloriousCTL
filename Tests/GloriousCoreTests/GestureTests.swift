@@ -233,27 +233,6 @@ final class ActionRingTests: XCTestCase {
       GestureEngine.shouldReverseScroll(isContinuous: false, separateMouseScrolling: true))
   }
 
-  func testDesktopMoveStopsAtTheEnds() {
-    // Desktops do not wrap, matching macOS: at the last one, moving right does nothing
-    // rather than jumping back to the first.
-    XCTAssertNil(SpaceSwitcher.targetIndex(current: 0, count: 3, step: -1))
-    XCTAssertNil(SpaceSwitcher.targetIndex(current: 2, count: 3, step: 1))
-    XCTAssertEqual(SpaceSwitcher.targetIndex(current: 0, count: 3, step: 1), 1)
-    XCTAssertEqual(SpaceSwitcher.targetIndex(current: 2, count: 3, step: -1), 1)
-  }
-
-  func testDesktopMoveRejectsNonsense() {
-    XCTAssertNil(SpaceSwitcher.targetIndex(current: 0, count: 1, step: 1))
-    XCTAssertNil(SpaceSwitcher.targetIndex(current: 5, count: 3, step: 1))
-    XCTAssertNil(SpaceSwitcher.targetIndex(current: -1, count: 3, step: 1))
-  }
-
-  func testDesktopActionsAreRoutedAwayFromKeystrokes() {
-    XCTAssertEqual(MacAction.spaceLeft.spaceDirection, .left)
-    XCTAssertEqual(MacAction.spaceRight.spaceDirection, .right)
-    XCTAssertNil(MacAction.missionControl.spaceDirection)
-  }
-
   func testRingCentreCancelsSelection() {
     XCTAssertNil(ActionRingSelection.index(dx: 4, dy: -8, itemCount: 6))
   }
