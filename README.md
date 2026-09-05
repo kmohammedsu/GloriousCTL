@@ -38,9 +38,7 @@ inspector panel for the selected button on the right](Assets/GloriousCTL-1.4-pre
 
 **What it can do**
 - [Features](#features)
-- [Gestures and Action Rings](#gestures-and-action-rings)
-- [Profiles](#profiles)
-- [What is not supported yet](#what-is-not-supported-yet)
+- [What is not supported yet](#honest-about-what-isnt-decoded)
 
 **For developers**
 - [Building from source](#building-from-source)
@@ -311,7 +309,7 @@ defaults, and flags disabled ones in the Gestures panel so they don't fail silen
 ## I can't find polling rate, lift-off distance, or debounce
 
 These genuinely aren't available yet — see
-[What is not supported yet](#what-is-not-supported-yet). Their panels are shown as
+[What is not supported yet](#honest-about-what-isnt-decoded). Their panels are shown as
 *unavailable* on purpose, so you can see the gap rather than wonder if you missed a
 menu.
 
@@ -378,6 +376,17 @@ item highlighted](Assets/ActionRing-preview.png)
 ![The Actions Ring editor: a list of configurable slots with action dropdowns,
 optional labels, and a hold-delay slider](Assets/feature-actionring.jpg)
 
+Move onto an item and release to run it. Releasing in the centre leaves the ring open
+so you can hover and click instead. The middle-button ring is on by default; the two
+side rings are opt-in, and rings can coexist with gestures on the same button.
+
+Shortcut-backed actions read your current key assignment from macOS rather than
+assuming Apple's default, and an action whose shortcut is disabled is flagged in the
+panel so it doesn't fail silently.
+
+Rings and gestures both need the separate **Accessibility** permission, which the app
+prompts for from their panels.
+
 ### Gestures
 
 Reserve the middle or side buttons for directional actions: hold, drag, and release.
@@ -408,6 +417,15 @@ guessing. The Protocol Inspector lets you help find them.
 rate listed as not safely decoded, with a button to open the Protocol
 Inspector](Assets/feature-advanced.jpg)
 
+These settings exist in the Windows software, but where the mouse stores them hasn't
+been identified yet. Writing to a guessed location would change something else
+unpredictably, so the app deliberately doesn't offer them — and shows their panels as
+*unavailable* rather than hiding them, so the gap is visible instead of silently
+missing.
+
+If you'd like to help find them, see
+[Finding the remaining fields](#finding-the-remaining-fields).
+
 ### Per-app profiles
 
 Save a profile, assign it to an application, and the mouse reconfigures itself when
@@ -417,50 +435,15 @@ already matches, so it doesn't write to the mouse more than it needs to.
 ![The App profiles panel with automatic switching enabled, showing the frontmost
 application being detected live](Assets/feature-appprofiles.jpg)
 
-### Also included
+### Macros and profiles
 
-- **Macros** — record and assign to any button
-- **Profiles** — save configurations and switch between them, stored on the Mac
-
-## Gestures and Action Rings
-
-GloriousCTL can claim the middle, side-back, and side-forward buttons in macOS.
-A quick press is re-emitted as the normal click, while a drag can perform one of
-the five gesture actions. Holding still for the configured delay opens a radial
-**Action Ring** above any app; move onto an item and release to run it. Releasing
-in the centre leaves the ring open so an item can instead be hovered and clicked.
-
-Each button has its own ring with up to eight slots. A slot can perform any
-built-in Mac action, open an application/file/folder, open a URL, or run a named
-workflow from the macOS Shortcuts app. Rings and gestures can coexist on the
-side buttons. The middle ring is enabled by default; the two side rings are
-opt-in. These features require the separate **Accessibility** permission shown
-in their panels.
-
-
-Shortcut-backed actions now read the current key assignment from macOS rather
-than assuming Apple's default. An action whose shortcut is disabled is called
-out in the Gestures panel so it no longer fails silently.
-
-## Profiles
+Record a macro and assign it to any button. Save whole configurations as profiles and
+switch between them on demand.
 
 The mouse stores a single configuration onboard, so profiles live on the Mac
-(`~/Library/Application Support/GloriousCTL/profiles.json`) and are applied to
-the device on demand. Each profile keeps the full 520-byte blob, so loading one
+(`~/Library/Application Support/GloriousCTL/profiles.json`) and are written to the
+device when you apply one. Each profile keeps the full 520-byte blob, so loading one
 is byte-exact.
-
-## What is not supported yet
-
-**Polling rate, lift-off distance, and debounce cannot be changed.**
-
-These settings exist in the Windows software, but where the mouse stores them hasn't
-been identified yet. Writing to a guessed location would change something else
-unpredictably, so the app deliberately doesn't offer them. Their panels appear as
-*unavailable* rather than being hidden, so the gap is visible instead of silently
-missing.
-
-If you'd like to help find them, see
-[Finding the remaining fields](#finding-the-remaining-fields).
 
 ## Interface
 
