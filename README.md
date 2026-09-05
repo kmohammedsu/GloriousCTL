@@ -115,7 +115,7 @@ Karabiner and similar tools require. (Technically: `IOHIDDeviceOpen` returns
 The app detects this situation and walks you through it on the Overview tab, so you
 don't have to remember the steps.
 
-**Doing more than basic button remapping?** Gestures and Action Rings need a *second,
+**Doing more than basic button remapping?** Action Rings and drags need a *second,
 separate* permission called **Accessibility**, in the same Privacy & Security section.
 The app prompts you for it only when you turn those features on.
 
@@ -290,7 +290,7 @@ verification failure — every write is read back and compared. Please
 [open an issue](https://github.com/kmohammedsu/GloriousCTL/issues) with what you
 changed.
 
-## Gestures or Action Rings do nothing
+## Action Rings or drags do nothing
 
 These need the **Accessibility** permission, which is separate from Input Monitoring:
 
@@ -304,7 +304,7 @@ default; the two side-button rings are opt-in.
 If it's a built-in Mac action such as Mission Control or Spotlight, its keyboard
 shortcut may be **disabled** in **System Settings → Keyboard → Keyboard Shortcuts**.
 GloriousCTL reads your current shortcut assignments rather than assuming Apple's
-defaults, and flags disabled ones in the Gestures panel so they don't fail silently.
+defaults, and flags disabled ones in the panel so they don't fail silently.
 
 ## I can't find polling rate, lift-off distance, or debounce
 
@@ -387,16 +387,19 @@ panel so it doesn't fail silently.
 Rings and gestures both need the separate **Accessibility** permission, which the app
 prompts for from their panels.
 
-### Gestures
+### Directional drags
 
-Reserve the middle or side buttons for directional actions: hold, drag, and release.
-Each button gets five slots — one per drag direction, plus the plain click. A quick
-click without dragging still does its normal job, so you don't lose the button.
+Don't want to wait for the ring? Flick the button in a direction and release. Each
+button gets five slots — one per direction, plus the plain click, which still does its
+normal job so you don't lose the button.
 
-![The Gestures panel with Side Back enabled and expanded: Click (no drag) mapped to
-Back, Drag Up to Mission Control, Drag Down to Application Windows, and Drag Left and
-Right to Move a Space, with Side Forward and Middle Click available
-below](Assets/feature-gestures.jpg)
+Turn on **Keep going while I keep dragging** and left/right fire once per step of
+sideways travel instead of once on release, so holding the button and sweeping moves
+through several spaces in one motion — the way a horizontal scroll wheel works. A
+sensitivity slider sets how far you travel per step.
+
+Drags are configured in the **Actions Ring** panel, next to the ring for the same
+button, since both are the same gesture: hold, then move.
 
 ### Scroll direction, fixed properly
 

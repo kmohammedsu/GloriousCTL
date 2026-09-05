@@ -115,10 +115,119 @@ struct ActionRingsPanel: View {
             .font(.system(size: 8, design: .monospaced))
             .foregroundStyle(Theme.textDim)
         }
+
+        Divider().overlay(Theme.border.opacity(0.5)).padding(.vertical, 2)
+        gestureSection(button)
       }
     }
     .padding(.vertical, 3)
     .overlay(alignment: .bottom) { Divider().overlay(Theme.border.opacity(0.5)) }
+  }
+
+  /// Drags used to live in their own tab, but they are the same interaction as the
+  /// ring — hold the button, then move — so they are configured alongside it.
+  @ViewBuilder
+  private func gestureSection(_ button: PhysicalButton) -> some View {
+    let binding =
+      controller.gestures.bindings[button]
+      ?? GestureBinding.defaultBinding(for: button)
+
+    VStack(alignment: .leading, spacing: 4) {
+      Toggle(
+        "Directional drags",
+        isOn: Binding(
+          get: { binding.enabled },
+          set: { value in
+            var updated = binding
+            updated.enabled = value
+            controller.updateGesture(updated)
+          })
+      )
+      .toggleStyle(.switch)
+      .controlSize(.mini)
+      .font(.system(size: 10, weight: .medium))
+
+      Text(
+        "Drag without waiting for the ring: flick the button in a direction and "
+          + "release. A quick click still does its normal job."
+      )
+      .font(.system(size: 8)).foregroundStyle(Theme.textDim)
+      .fixedSize(horizontal: false, vertical: true)
+
+      if binding.enabled {
+        ForEach(GestureDirection.allCases, id: \.self) { direction in
+          HStack(spacing: 6) {
+            Image(systemName: direction.symbolName)
+              .font(.system(size: 9)).foregroundStyle(Theme.accent)
+              .frame(width: 13)
+            Text(direction.displayName)
+              .font(.system(size: 9)).foregroundStyle(Theme.textDim)
+              .frame(width: 74, alignment: .leading)
+            MacActionMenu(
+              selection: Binding(
+                get: { binding.action(for: direction) },
+                set: { action in
+                  var updated = binding
+                  updated.actions[direction] = action
+                  controller.updateGesture(updated)
+                }),
+              width: 140)
+          }
+        }
+
+        Toggle(
+          "Keep going while I keep dragging",
+          isOn: Binding(
+            get: { binding.repeatHorizontal },
+            set: { value in
+              var updated = binding
+              updated.repeatHorizontal = value
+              controller.updateGesture(updated)
+            })
+        )
+        .toggleStyle(.switch)
+        .controlSize(.mini)
+        .font(.system(size: 9))
+        .padding(.top, 2)
+
+        Text(
+          "Left and right fire once per step of sideways travel instead of once on "
+            + "release, so a long sweep moves several spaces — like a horizontal "
+            + "scroll wheel."
+        )
+        .font(.system(size: 8)).foregroundStyle(Theme.textDim)
+        .fixedSize(horizontal: false, vertical: true)
+
+        if binding.repeatHorizontal {
+          HStack(spacing: 6) {
+            Text("Sensitivity")
+              .font(.system(size: 9)).foregroundStyle(Theme.textDim)
+            Slider(
+              value: Binding(
+                get: { 110 - binding.repeatStep },
+                set: { value in
+                  var updated = binding
+                  updated.repeatStep = 110 - value
+                  controller.updateGesture(updated)
+                }),
+              in: 20...90, step: 5)
+            Text(repeatSensitivityName(binding.repeatStep))
+              .font(.system(size: 8)).foregroundStyle(Theme.text)
+              .frame(width: 46, alignment: .trailing)
+          }
+        }
+      }
+    }
+  }
+
+  private func repeatSensitivityName(_ step: Double) -> String {
+    switch step {
+    case ..<32: return "Highest"
+    case ..<48: return "High"
+    case ..<66: return "Medium"
+    case ..<82: return "Low"
+    default: return "Lowest"
+    }
   }
 
   /// The slider sets how long the button must be held before the ring opens. Users

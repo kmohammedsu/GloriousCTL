@@ -277,7 +277,6 @@ struct MainWindow: View {
     case .buttons: buttonEditor(config)
     case .dpi: DPISettingPanel(config: config)
     case .lighting: LightingPanel(config: config)
-    case .gestures: GesturesPanel()
     case .rings: ActionRingsPanel()
     case .scrolling: ScrollingPanel()
     case .apps: AutoSwitchPanel()
@@ -323,12 +322,8 @@ struct MainWindow: View {
         )
         .font(.system(size: 10)).foregroundStyle(Theme.textDim)
         .fixedSize(horizontal: false, vertical: true)
-        HStack {
-          Button("Edit ring") { control = .rings }
-            .buttonStyle(PlateButtonStyle(wide: false))
-          Button("Edit gestures") { control = .gestures }
-            .buttonStyle(PlateButtonStyle(wide: false))
-        }
+        Button("Edit ring and drags") { control = .rings }
+          .buttonStyle(PlateButtonStyle(wide: false))
       }
 
       Divider().overlay(Theme.border)
@@ -379,7 +374,7 @@ struct MainWindow: View {
 }
 
 private enum ControlArea: String, CaseIterable, Identifiable {
-  case buttons, dpi, lighting, gestures, rings, scrolling, apps, advanced
+  case buttons, dpi, lighting, rings, scrolling, apps, advanced
   var id: String { rawValue }
 
   var title: String {
@@ -387,7 +382,6 @@ private enum ControlArea: String, CaseIterable, Identifiable {
     case .buttons: return "Buttons"
     case .dpi: return "DPI & sensor"
     case .lighting: return "Lighting"
-    case .gestures: return "Gestures"
     case .rings: return "Actions Ring"
     case .scrolling: return "Scrolling"
     case .apps: return "App profiles"
@@ -399,8 +393,7 @@ private enum ControlArea: String, CaseIterable, Identifiable {
     case .buttons: return "Remap six controls"
     case .dpi: return "Speed and stages"
     case .lighting: return "RGB effects"
-    case .gestures: return "Hold and move"
-    case .rings: return "Radial shortcuts"
+    case .rings: return "Rings and drags"
     case .scrolling: return "Mouse + trackpad"
     case .apps: return "Automatic switching"
     case .advanced: return "Device diagnostics"
@@ -411,8 +404,7 @@ private enum ControlArea: String, CaseIterable, Identifiable {
     case .buttons: return "Choose a numbered control"
     case .dpi: return "Tune pointer response"
     case .lighting: return "Set the onboard RGB effect"
-    case .gestures: return "Reserve side buttons for directional actions"
-    case .rings: return "Hold a button for instant shortcuts"
+    case .rings: return "Hold a button for a ring, or drag it in a direction"
     case .scrolling: return "Correct the wheel without changing the trackpad"
     case .apps: return "Change profiles with the frontmost app"
     case .advanced: return "Safe access to unfinished controls"
@@ -423,7 +415,6 @@ private enum ControlArea: String, CaseIterable, Identifiable {
     case .buttons: return "cursorarrow.click.2"
     case .dpi: return "scope"
     case .lighting: return "lightspectrum.horizontal"
-    case .gestures: return "arrow.up.and.down.and.arrow.left.and.right"
     case .rings: return "circle.hexagongrid"
     case .scrolling: return "computermouse.and.cursorarrow"
     case .apps: return "square.stack.3d.up.fill"
