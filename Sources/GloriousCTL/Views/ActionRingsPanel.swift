@@ -20,6 +20,8 @@ struct ActionRingsPanel: View {
           permissionGate
         }
 
+        unavailableShortcutWarning
+
         ForEach(ringButtons, id: \.self) { button in
           ringSection(button)
         }
@@ -31,6 +33,61 @@ struct ActionRingsPanel: View {
         .fixedSize(horizontal: false, vertical: true)
       }
       .onAppear { scrollProxy = proxy }
+    }
+  }
+
+  /// Several actions are performed by sending the matching macOS keyboard shortcut.
+  /// If that shortcut has no key assigned, the action silently does nothing — which
+  /// is impossible to diagnose from inside the app without saying so.
+  @ViewBuilder
+  private var unavailableShortcutWarning: some View {
+    let fromDrags = controller.gestures.bindings.values
+      .filter(\.enabled)
+      .flatMap { binding in GestureDirection.allCases.map { binding.action(for: $0) } }
+    let fromRings = controller.gestures.rings.values
+      .filter(\.enabled)
+      .flatMap(\.items)
+      .compactMap { item -> MacAction? in
+        if case .system(let action) = item.action { return action }
+        return nil
+      }
+    let broken = Array(Set(SystemShortcuts.unavailableActions(in: fromDrags + fromRings)))
+      .sorted { $0.displayName < $1.displayName }
+
+    if !broken.isEmpty {
+      VStack(alignment: .leading, spacing: 5) {
+        Label(
+          "Some actions have no keyboard shortcut assigned",
+          systemImage: "exclamationmark.triangle.fill"
+        )
+        .font(.system(size: 10)).foregroundStyle(Theme.accent)
+        Text(broken.map(\.displayName).joined(separator: ", "))
+          .font(.system(size: 9)).foregroundStyle(Theme.text)
+        Text(
+          """
+          macOS performs these through a keyboard shortcut, and yours is switched on \
+          but has no key set — so the action does nothing. Assign it under \
+          \(SystemShortcuts.settingsHint), then log out and back in. Mission Control \
+          and Launchpad do not need a shortcut.
+          """
+        )
+        .font(.system(size: 9)).foregroundStyle(Theme.textDim)
+        .fixedSize(horizontal: false, vertical: true)
+        Button("Open Keyboard Shortcuts") {
+          NSWorkspace.shared.open(
+            URL(
+              string:
+                "x-apple.systempreferences:com.apple.preference.keyboard?Shortcuts")!)
+        }
+        .buttonStyle(PlateButtonStyle(wide: false))
+      }
+      .padding(8)
+      .background(
+        RoundedRectangle(cornerRadius: Theme.corner)
+          .fill(Theme.accent.opacity(0.08)))
+      .overlay(
+        RoundedRectangle(cornerRadius: Theme.corner)
+          .stroke(Theme.accent.opacity(0.35), lineWidth: 1))
     }
   }
 

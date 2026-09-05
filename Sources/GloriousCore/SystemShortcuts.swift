@@ -14,7 +14,11 @@ public enum SystemShortcuts {
     }
     guard (entry["enabled"] as? Bool) ?? false else { return false }
 
-    guard let value = entry["value"] as? [String: Any] else { return true }
+    // A shortcut left at its factory setting has no entry at all, so reaching here
+    // means something wrote one. If it carries no binding, macOS has no key for the
+    // action and the shortcut silently does nothing — report it as unassigned rather
+    // than assuming the default is still in force.
+    guard let value = entry["value"] as? [String: Any] else { return false }
     if let parameters = value["parameters"] as? [Any] {
       return parameters.count >= 3
     }
