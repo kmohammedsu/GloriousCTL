@@ -323,8 +323,16 @@ public final class GestureEngine: ObservableObject {
     return Int64(scaled)
   }
 
-  private static let scrollDeltaFields: [CGEventField] = [
+  /// Whole wheel notches. These are genuinely integral.
+  private static let lineDeltaFields: [CGEventField] = [
     .scrollWheelEventDeltaAxis1, .scrollWheelEventDeltaAxis2, .scrollWheelEventDeltaAxis3,
+  ]
+
+  /// Sub-notch deltas. The fixed-point fields hold 16.16 values, so reading and
+  /// writing them through the integer accessors manipulates the raw bits rather than
+  /// the scroll distance, and macOS ends up with deltas that disagree with each
+  /// other — the wheel then behaves as though nothing was changed at all.
+  private static let preciseDeltaFields: [CGEventField] = [
     .scrollWheelEventPointDeltaAxis1, .scrollWheelEventPointDeltaAxis2,
     .scrollWheelEventPointDeltaAxis3, .scrollWheelEventFixedPtDeltaAxis1,
     .scrollWheelEventFixedPtDeltaAxis2, .scrollWheelEventFixedPtDeltaAxis3,
@@ -342,12 +350,20 @@ public final class GestureEngine: ObservableObject {
     let speed = scrollSpeed
     guard reverse || speed != 1 else { return }
 
-    for field in Self.scrollDeltaFields {
+    let sign: Double = reverse ? -1 : 1
+
+    for field in Self.lineDeltaFields {
       let value = event.getIntegerValueField(field)
-      guard value != .min else { continue }
+      guard value != 0, value != .min else { continue }
       var updated = Self.scaledScrollDelta(value, speed: speed)
       if reverse { updated = -updated }
       event.setIntegerValueField(field, value: updated)
+    }
+
+    for field in Self.preciseDeltaFields {
+      let value = event.getDoubleValueField(field)
+      guard value != 0 else { continue }
+      event.setDoubleValueField(field, value: value * speed * sign)
     }
   }
 
@@ -372,7 +388,10 @@ public final class GestureEngine: ObservableObject {
     let source = button?.displayName ?? "Action"
     lastGesture = "\(source) ring → \(selected.displayName)"
     Self.log("ring selected: \(selected.displayName)")
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+    // The overlay window has just been ordered out. Injecting a system hotkey while
+    // the window server is still settling that change gets it dropped, so wait
+    // noticeably longer here than for a plain drag, which has no window to close.
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
       let accepted = ActionDispatcher.perform(selected.action)
       Self.log(accepted ? "ring dispatch accepted" : "ring dispatch unavailable")
     }
