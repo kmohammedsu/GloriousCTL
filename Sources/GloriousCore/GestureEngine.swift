@@ -340,26 +340,8 @@ public final class GestureEngine: ObservableObject {
 
   /// Direction and speed both act on the wheel only. Continuous events come from the
   /// trackpad and are left exactly as macOS produced them.
-  /// Only the first few are logged; a scroll produces a torrent of events.
-  private var scrollLogBudget = 8
-
   private func adjustDiscreteScrollIfNeeded(_ event: CGEvent) {
     let isContinuous = event.getIntegerValueField(.scrollWheelEventIsContinuous) != 0
-
-    if scrollLogBudget > 0 {
-      scrollLogBudget -= 1
-      Self.log(
-        String(
-          format: "scroll in: line=%d point=%.2f fixed=%.2f continuous=%d "
-            + "| reverse=%@ speed=%.1f",
-          event.getIntegerValueField(.scrollWheelEventDeltaAxis1),
-          event.getDoubleValueField(.scrollWheelEventPointDeltaAxis1),
-          event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1),
-          isContinuous,
-          separateMouseScrolling ? "yes" : "no",
-          scrollSpeed))
-    }
-
     guard !isContinuous else { return }
 
     let reverse = Self.shouldReverseScroll(
@@ -389,15 +371,6 @@ public final class GestureEngine: ObservableObject {
       let value = event.getDoubleValueField(field)
       guard value != 0 else { continue }
       event.setDoubleValueField(field, value: value * speed * sign)
-    }
-
-    if scrollLogBudget > 0 {
-      Self.log(
-        String(
-          format: "scroll out: line=%d point=%.2f fixed=%.2f",
-          event.getIntegerValueField(.scrollWheelEventDeltaAxis1),
-          event.getDoubleValueField(.scrollWheelEventPointDeltaAxis1),
-          event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)))
     }
   }
 
