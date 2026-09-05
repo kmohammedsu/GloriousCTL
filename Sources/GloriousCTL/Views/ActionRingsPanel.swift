@@ -130,16 +130,20 @@ struct ActionRingsPanel: View {
             .frame(width: 13)
           Picker("", selection: actionChoiceBinding(button: button, itemID: itemID)) {
             Text("Do Nothing").tag(ActionChoice.none)
-            Divider()
-            ForEach(MacAction.allCases.filter { $0 != .none }, id: \.self) { action in
-              Text(action.displayName).tag(ActionChoice.system(action))
+            ForEach(MacAction.grouped(), id: \.category) { group in
+              Section(group.category.rawValue) {
+                ForEach(group.actions, id: \.self) { action in
+                  Text(action.displayName).tag(ActionChoice.system(action))
+                }
+              }
             }
-            Divider()
-            Text("Open App or File…").tag(ActionChoice.open)
-            Text("Open URL…").tag(ActionChoice.url)
-            Text("Run macOS Shortcut…").tag(ActionChoice.shortcut)
+            Section("Custom") {
+              Text("Open App or File…").tag(ActionChoice.open)
+              Text("Open URL…").tag(ActionChoice.url)
+              Text("Run macOS Shortcut…").tag(ActionChoice.shortcut)
+            }
           }
-          .labelsHidden().controlSize(.mini)
+          .labelsHidden().controlSize(.small)
 
           Button {
             update(button) { ring in

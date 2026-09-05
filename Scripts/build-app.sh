@@ -20,9 +20,9 @@ echo "==> Testing"
 swift test --package-path "$ROOT" "${SWIFT_FLAGS[@]}"
 
 echo "==> Compiling ($CONFIG)"
-swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" "${ARCH_FLAGS[@]}" -c "$CONFIG" --product GloriousCTL
-swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" "${ARCH_FLAGS[@]}" -c "$CONFIG" --product gloriousctl-probe
-BIN="$(swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" "${ARCH_FLAGS[@]}" -c "$CONFIG" --show-bin-path)"
+swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} -c "$CONFIG" --product GloriousCTL
+swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} -c "$CONFIG" --product gloriousctl-probe
+BIN="$(swift build --package-path "$ROOT" "${SWIFT_FLAGS[@]}" ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} -c "$CONFIG" --show-bin-path)"
 
 echo "==> Assembling bundle"
 rm -rf "$APP"

@@ -82,6 +82,44 @@ public enum MacAction: Codable, Hashable, Sendable, CaseIterable {
     }
   }
 
+  /// Grouping used to break the action list into labelled sections. A flat list of
+  /// every case is taller than the window and unreadable at a glance.
+  public enum Category: String, CaseIterable, Sendable {
+    case spacesAndWindows = "Spaces & Windows"
+    case system = "System"
+    case media = "Media"
+    case editing = "Editing"
+    case tabsAndView = "Tabs & View"
+    case mouse = "Mouse Buttons"
+  }
+
+  public var category: Category {
+    switch self {
+    case .none, .missionControl, .applicationWindows, .showDesktop, .launchpad,
+         .spaceLeft, .spaceRight, .switchApplication, .minimizeWindow, .hideApplication:
+      return .spacesAndWindows
+    case .spotlight, .screenshotRegion, .lockScreen, .emojiPicker:
+      return .system
+    case .volumeUp, .volumeDown, .mute, .playPause, .nextTrack, .previousTrack:
+      return .media
+    case .copy, .paste, .undo, .redo, .selectAll, .save, .find, .print:
+      return .editing
+    case .newTab, .closeTab, .reopenClosedTab, .zoomIn, .zoomOut, .actualSize:
+      return .tabsAndView
+    case .forwardClick, .backClick, .middleClick:
+      return .mouse
+    }
+  }
+
+  /// Selectable actions grouped for display, in a stable order. `.none` is excluded
+  /// because callers present it separately.
+  public static func grouped() -> [(category: Category, actions: [MacAction])] {
+    Category.allCases.compactMap { category in
+      let actions = MacAction.allCases.filter { $0 != .none && $0.category == category }
+      return actions.isEmpty ? nil : (category, actions)
+    }
+  }
+
   private enum Key {
     static let upArrow: CGKeyCode = 0x7E
     static let downArrow: CGKeyCode = 0x7D

@@ -170,12 +170,17 @@ struct GesturesPanel: View {
                   controller.updateGesture(updated)
                 })
             ) {
-              ForEach(MacAction.allCases, id: \.self) {
-                Text($0.displayName).tag($0)
+              Text(MacAction.none.displayName).tag(MacAction.none)
+              ForEach(MacAction.grouped(), id: \.category) { group in
+                Section(group.category.rawValue) {
+                  ForEach(group.actions, id: \.self) {
+                    Text($0.displayName).tag($0)
+                  }
+                }
               }
             }
             .labelsHidden()
-            .controlSize(.mini)
+            .controlSize(.small)
           }
         }
       }
