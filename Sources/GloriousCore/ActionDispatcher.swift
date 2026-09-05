@@ -7,6 +7,15 @@ public enum ActionDispatcher {
 
   public static let syntheticMarker: Int64 = 0x47_4C_4F_52
 
+  /// `GestureEngine.log` is main-actor isolated, so hop across to reach it.
+  private static func logDeliveryFailure(_ action: MacAction) {
+    Task { @MainActor in
+      GestureEngine.log(
+        "\(action.displayName): System Events refused the keystroke — check "
+          + "Automation access under Privacy & Security")
+    }
+  }
+
 
   @discardableResult
   public static func perform(_ action: MacAction) -> Bool {
@@ -37,6 +46,11 @@ public enum ActionDispatcher {
         if launchExecutable("/usr/bin/osascript", arguments: ["-e", script]) {
           return true
         }
+        // Posting the event instead almost certainly will not work for a shortcut the
+        // window server handles, so the action will appear to do nothing. Say so:
+        // without this the most likely cause, Automation access being declined, is
+        // invisible.
+        logDeliveryFailure(action)
       }
       postKeystroke(key: stroke.key, flags: stroke.flags)
       return true
