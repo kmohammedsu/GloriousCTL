@@ -260,11 +260,27 @@ mouse — not this app. Try another USB port and avoid hubs.
 
 ## Permission was working, then stopped after an update
 
-macOS ties this permission to the app's exact identity. Replacing the app can
-occasionally cause macOS to treat it as a different app.
+macOS ties this permission to the app's exact identity — bundle identifier *and* code
+signature. If either changes, the existing entry silently stops applying: the switch
+still shows as on, but the app is still blocked.
 
-Fix it by removing and re-adding the entry as described in step 3 above, then quitting
-and reopening.
+**Reinstalling the app does not fix this, and neither does deleting it.** The
+Input Monitoring entry outlives the app: delete GloriousCTL from Applications and the
+row stays in the list, still switched on, pointing at an identity that no longer
+matches. A fresh install lands at the same path and gets matched against that stale
+record.
+
+You have to remove the entry itself:
+
+1. **System Settings → Privacy & Security → Input Monitoring**
+2. Select **GloriousCTL**, click **−**, and authenticate
+3. Confirm the row is gone
+4. Open GloriousCTL and click **Open Input Monitoring Settings** on its welcome screen,
+   or add it with **+**
+5. When macOS offers **Quit & Reopen**, take it — the permission only applies at launch
+
+This affects anyone upgrading from a self-built copy of GloriousCTL to a release
+build, because the released app uses a different bundle identifier.
 
 ## My settings don't stick
 
@@ -392,11 +408,19 @@ guessing. The Protocol Inspector lets you help find them.
 rate listed as not safely decoded, with a button to open the Protocol
 Inspector](Assets/feature-advanced.jpg)
 
+### Per-app profiles
+
+Save a profile, assign it to an application, and the mouse reconfigures itself when
+that app comes to the front. Switching is debounced and skipped when the device
+already matches, so it doesn't write to the mouse more than it needs to.
+
+![The App profiles panel with automatic switching enabled, showing the frontmost
+application being detected live](Assets/feature-appprofiles.jpg)
+
 ### Also included
 
 - **Macros** — record and assign to any button
-- **Profiles** — save configurations and switch between them
-- **App profiles** — switch automatically depending on which app is in front
+- **Profiles** — save configurations and switch between them, stored on the Mac
 
 ## Gestures and Action Rings
 
