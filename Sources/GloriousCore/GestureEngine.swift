@@ -45,6 +45,10 @@ public final class GestureEngine: ObservableObject {
   private var runLoopSource: CFRunLoopSource?
   private var trackingButton: PhysicalButton?
   private var startLocation: CGPoint = .zero
+  /// Moving reference point for the horizontal repeat ratchet; advances one step at a
+  /// time so a long sweep fires repeatedly instead of once.
+  private var repeatAnchorX: CGFloat = 0
+  private var repeatDidFire = false
   private var ringIsVisible = false
   private var ringSelection: Int?
   private var activeRingItems: [ActionRingItem] = []
@@ -192,6 +196,8 @@ public final class GestureEngine: ObservableObject {
       ringIsVisible = false
       ringSelection = nil
       activeRingItems = ring.items
+      repeatAnchorX = event.location.x
+      repeatDidFire = false
       Self.log("down: \(button.displayName) at \(Int(startLocation.x)),\(Int(startLocation.y))")
       if ring.enabled, !ring.items.isEmpty {
         let work = DispatchWorkItem { [weak self] in
@@ -212,8 +218,13 @@ public final class GestureEngine: ObservableObject {
       let dy = Double(event.location.y - startLocation.y)
       if ringIsVisible {
         updateRingSelection(at: event.location)
-      } else if hypot(dx, dy) >= recognizer.threshold {
+        return nil
+      }
+      if hypot(dx, dy) >= recognizer.threshold {
         cancelLongPress()
+      }
+      if binding.enabled, binding.repeatHorizontal, abs(dx) > abs(dy) {
+        emitHorizontalRepeats(for: binding, at: event.location.x)
       }
       return nil
 
@@ -225,6 +236,12 @@ public final class GestureEngine: ObservableObject {
 
       if ringIsVisible {
         finishRingSelection(button: button)
+        return nil
+      }
+
+      if repeatDidFire {
+        repeatDidFire = false
+        Self.log("up: \(button.displayName) ended a repeat drag; no extra action")
         return nil
       }
 
@@ -261,6 +278,25 @@ public final class GestureEngine: ObservableObject {
 
     default:
       return Unmanaged.passUnretained(event)
+    }
+  }
+
+  /// Fires the left/right action once per `repeatStep` points of sideways travel, so
+  /// holding the button and sweeping keeps moving instead of acting once on release.
+  private func emitHorizontalRepeats(for binding: GestureBinding, at x: CGFloat) {
+    let step = max(12, binding.repeatStep)
+    var travel = Double(x - repeatAnchorX)
+    while abs(travel) >= step {
+      let direction: GestureDirection = travel > 0 ? .right : .left
+      let action = binding.action(for: direction)
+      repeatAnchorX += CGFloat(travel > 0 ? step : -step)
+      travel = Double(x - repeatAnchorX)
+      guard action != .none else { continue }
+      repeatDidFire = true
+      cancelLongPress()
+      lastGesture = "\(binding.button.displayName): repeat \(direction.displayName) → \(action.displayName)"
+      Self.log("repeat: \(direction.rawValue) -> \(action.displayName)")
+      _ = ActionDispatcher.perform(action)
     }
   }
 

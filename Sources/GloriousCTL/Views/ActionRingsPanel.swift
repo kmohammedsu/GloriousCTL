@@ -84,16 +84,17 @@ struct ActionRingsPanel: View {
 
       if expandedButton == button {
         HStack(spacing: 6) {
-          Text("Hold")
+          Text("Strength")
             .font(.system(size: 9)).foregroundStyle(Theme.textDim)
           Slider(
             value: Binding(
               get: { ring.holdDuration },
               set: { value in update(button) { $0.holdDuration = value } }),
             in: 0.35...1.2, step: 0.05)
-          Text(String(format: "%.2fs", ring.holdDuration))
-            .font(.system(size: 8, design: .monospaced))
-            .foregroundStyle(Theme.text).frame(width: 34)
+          Text(holdStrengthName(ring.holdDuration))
+            .font(.system(size: 8))
+            .foregroundStyle(Theme.text).frame(width: 46, alignment: .trailing)
+            .help(String(format: "Hold for %.2f seconds to open the ring", ring.holdDuration))
         }
 
         ForEach(ring.items) { item in
@@ -118,6 +119,19 @@ struct ActionRingsPanel: View {
     }
     .padding(.vertical, 3)
     .overlay(alignment: .bottom) { Divider().overlay(Theme.border.opacity(0.5)) }
+  }
+
+  /// The slider sets how long the button must be held before the ring opens. Users
+  /// think of that as how firm the press has to be, not as a number of seconds, so it
+  /// reads as a strength; the exact duration stays available as a tooltip.
+  private func holdStrengthName(_ duration: Double) -> String {
+    switch duration {
+    case ..<0.5: return "Lightest"
+    case ..<0.7: return "Light"
+    case ..<0.9: return "Medium"
+    case ..<1.1: return "Firm"
+    default: return "Firmest"
+    }
   }
 
   @ViewBuilder
