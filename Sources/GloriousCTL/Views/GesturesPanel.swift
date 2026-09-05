@@ -160,27 +160,14 @@ struct GesturesPanel: View {
             Text(direction.displayName)
               .font(.system(size: 9)).foregroundStyle(Theme.textDim)
               .frame(width: 78, alignment: .leading)
-            Picker(
-              "",
+            MacActionMenu(
               selection: Binding(
                 get: { binding.action(for: direction) },
                 set: { action in
                   var updated = binding
                   updated.actions[direction] = action
                   controller.updateGesture(updated)
-                })
-            ) {
-              Text(MacAction.none.displayName).tag(MacAction.none)
-              ForEach(MacAction.grouped(), id: \.category) { group in
-                Section(group.category.rawValue) {
-                  ForEach(group.actions, id: \.self) {
-                    Text($0.displayName).tag($0)
-                  }
-                }
-              }
-            }
-            .labelsHidden()
-            .controlSize(.small)
+                }))
           }
         }
       }

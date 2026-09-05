@@ -128,22 +128,7 @@ struct ActionRingsPanel: View {
           Image(systemName: item.action.symbolName)
             .font(.system(size: 9)).foregroundStyle(Theme.accent)
             .frame(width: 13)
-          Picker("", selection: actionChoiceBinding(button: button, itemID: itemID)) {
-            Text("Do Nothing").tag(ActionChoice.none)
-            ForEach(MacAction.grouped(), id: \.category) { group in
-              Section(group.category.rawValue) {
-                ForEach(group.actions, id: \.self) { action in
-                  Text(action.displayName).tag(ActionChoice.system(action))
-                }
-              }
-            }
-            Section("Custom") {
-              Text("Open App or File…").tag(ActionChoice.open)
-              Text("Open URL…").tag(ActionChoice.url)
-              Text("Run macOS Shortcut…").tag(ActionChoice.shortcut)
-            }
-          }
-          .labelsHidden().controlSize(.small)
+          ringActionMenu(button: button, itemID: itemID)
 
           Button {
             update(button) { ring in
@@ -236,6 +221,65 @@ struct ActionRingsPanel: View {
     case none
     case system(MacAction)
     case open, url, shortcut
+  }
+
+  /// Ring slots additionally offer the custom open / URL / shortcut choices, so the
+  /// menu is built here rather than reusing `MacActionMenu`.
+  @ViewBuilder
+  private func ringActionMenu(button: PhysicalButton, itemID: UUID) -> some View {
+    let choice = actionChoiceBinding(button: button, itemID: itemID)
+    Menu {
+      actionMenuItem("Do Nothing", isSelected: choice.wrappedValue == .none) {
+        choice.wrappedValue = .none
+      }
+      Divider()
+      ForEach(MacAction.grouped(), id: \.category) { group in
+        Menu {
+          ForEach(group.actions, id: \.self) { action in
+            actionMenuItem(
+              action.displayName, isSelected: choice.wrappedValue == .system(action)
+            ) {
+              choice.wrappedValue = .system(action)
+            }
+          }
+        } label: {
+          Label(group.category.rawValue, systemImage: group.category.symbolName)
+        }
+      }
+      Divider()
+      Menu {
+        actionMenuItem("Open App or File…", isSelected: choice.wrappedValue == .open) {
+          choice.wrappedValue = .open
+        }
+        actionMenuItem("Open URL…", isSelected: choice.wrappedValue == .url) {
+          choice.wrappedValue = .url
+        }
+        actionMenuItem(
+          "Run macOS Shortcut…", isSelected: choice.wrappedValue == .shortcut
+        ) {
+          choice.wrappedValue = .shortcut
+        }
+      } label: {
+        Label("Custom…", systemImage: "arrow.up.forward.app")
+      }
+    } label: {
+      Text(ringActionTitle(choice.wrappedValue))
+        .font(.system(size: 10))
+        .lineLimit(1)
+        .truncationMode(.middle)
+    }
+    .controlSize(.small)
+    .frame(width: 152)
+  }
+
+  private func ringActionTitle(_ choice: ActionChoice) -> String {
+    switch choice {
+    case .none: return "Do Nothing"
+    case .system(let action): return action.displayName
+    case .open: return "Open App or File…"
+    case .url: return "Open URL…"
+    case .shortcut: return "Run macOS Shortcut…"
+    }
   }
 
   private func actionChoiceBinding(button: PhysicalButton, itemID: UUID) -> Binding<ActionChoice> {

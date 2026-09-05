@@ -91,6 +91,17 @@ public enum MacAction: Codable, Hashable, Sendable, CaseIterable {
     case editing = "Editing"
     case tabsAndView = "Tabs & View"
     case mouse = "Mouse Buttons"
+
+    public var symbolName: String {
+      switch self {
+      case .spacesAndWindows: return "macwindow.on.rectangle"
+      case .system: return "gearshape"
+      case .media: return "speaker.wave.2"
+      case .editing: return "pencil"
+      case .tabsAndView: return "rectangle.stack"
+      case .mouse: return "computermouse"
+      }
+    }
   }
 
   public var category: Category {
