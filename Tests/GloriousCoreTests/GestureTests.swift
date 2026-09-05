@@ -233,6 +233,23 @@ final class ActionRingTests: XCTestCase {
       GestureEngine.shouldReverseScroll(isContinuous: false, separateMouseScrolling: true))
   }
 
+  func testSystemEventsScriptCarriesTheModifiers() {
+    XCTAssertEqual(
+      SystemShortcutKey.script(key: 124, flags: .maskControl),
+      "tell application \"System Events\" to key code 124 using {control down}")
+    XCTAssertEqual(
+      SystemShortcutKey.script(key: 123, flags: [.maskControl, .maskShift]),
+      "tell application \"System Events\" to key code 123 using {control down, shift down}")
+  }
+
+  /// A missing modifier list must not leave a dangling "using", which would be a
+  /// syntax error and fail silently at runtime.
+  func testSystemEventsScriptOmitsEmptyModifiers() {
+    XCTAssertEqual(
+      SystemShortcutKey.script(key: 96, flags: []),
+      "tell application \"System Events\" to key code 96")
+  }
+
   func testRingCentreCancelsSelection() {
     XCTAssertNil(ActionRingSelection.index(dx: 4, dy: -8, itemCount: 6))
   }

@@ -39,6 +39,16 @@ public enum ActionDispatcher {
         String(
           format: "  keystroke branch: %@ key=0x%02X flags=0x%llX",
           action.displayName, Int(stroke.key), stroke.flags.rawValue))
+      // Shortcuts the window server handles itself ignore synthetic CGEvents, so
+      // those go through System Events instead. See SystemShortcutKey.
+      if action.symbolicHotkeyID != nil {
+        let script = SystemShortcutKey.script(key: stroke.key, flags: stroke.flags)
+        if launchExecutable("/usr/bin/osascript", arguments: ["-e", script]) {
+          diagLog("  delivered via System Events")
+          return true
+        }
+        diagLog("  System Events delivery failed; falling back to a posted event")
+      }
       postKeystroke(key: stroke.key, flags: stroke.flags)
       return true
     }
