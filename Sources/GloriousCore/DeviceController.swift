@@ -58,6 +58,7 @@ public final class DeviceController: ObservableObject {
   private static let gestureDefaultsKey = "GestureBindings"
   private static let ringDefaultsKey = "ActionRingConfigurations"
   private static let separateMouseScrollingKey = "SeparateMouseScrolling"
+  private static let scrollSpeedKey = "ScrollSpeed"
 
   private var childObservers: [AnyCancellable] = []
 
@@ -68,6 +69,10 @@ public final class DeviceController: ObservableObject {
     loadActionRings()
     gestures.separateMouseScrolling = UserDefaults.standard.bool(
       forKey: Self.separateMouseScrollingKey)
+    // Absent means never set, which must read as 1 (leave macOS alone) rather than
+    // the 0 that `double(forKey:)` returns for a missing key.
+    let storedSpeed = UserDefaults.standard.double(forKey: Self.scrollSpeedKey)
+    gestures.scrollSpeed = storedSpeed > 0 ? storedSpeed : 1
     wireAppSwitcher()
     forwardChildChanges()
   }
@@ -147,6 +152,12 @@ public final class DeviceController: ObservableObject {
   public func setSeparateMouseScrolling(_ enabled: Bool) {
     gestures.separateMouseScrolling = enabled
     UserDefaults.standard.set(enabled, forKey: Self.separateMouseScrollingKey)
+  }
+
+  public func setScrollSpeed(_ speed: Double) {
+    gestures.scrollSpeed = speed
+    UserDefaults.standard.set(speed, forKey: Self.scrollSpeedKey)
+    objectWillChange.send()
     saveGestureBindings()
   }
 

@@ -171,6 +171,17 @@ struct LightingPanel: View {
 struct ScrollingPanel: View {
   @EnvironmentObject private var controller: DeviceController
 
+  /// A multiplier is easier to judge as a word than as a number.
+  private func scrollSpeedName(_ speed: Double) -> String {
+    switch speed {
+    case ..<1.25: return "macOS default"
+    case ..<2: return "A bit faster"
+    case ..<3: return "Faster"
+    case ..<4.5: return "Much faster"
+    default: return "Fastest"
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       Toggle(
@@ -187,6 +198,24 @@ struct ScrollingPanel: View {
       }
       .toggleStyle(.switch)
       .controlSize(.small)
+
+      VStack(alignment: .leading, spacing: 4) {
+        Text("Scroll speed")
+          .font(.system(size: 11, weight: .semibold))
+        Text("How far one wheel step moves the page")
+          .font(.system(size: 9)).foregroundStyle(Theme.textDim)
+        HStack(spacing: 8) {
+          Slider(
+            value: Binding(
+              get: { controller.gestures.scrollSpeed },
+              set: { controller.setScrollSpeed($0) }),
+            in: 1...6, step: 0.5)
+          Text(scrollSpeedName(controller.gestures.scrollSpeed))
+            .font(.system(size: 10)).foregroundStyle(Theme.text)
+            .frame(width: 64, alignment: .trailing)
+            .help(String(format: "%.1f× the macOS default", controller.gestures.scrollSpeed))
+        }
+      }
 
       HStack(alignment: .top, spacing: 9) {
         Image(systemName: "hand.draw")

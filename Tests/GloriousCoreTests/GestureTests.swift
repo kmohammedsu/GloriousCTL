@@ -206,6 +206,33 @@ final class ActionRingTests: XCTestCase {
     XCTAssertEqual(ActionRingSelection.index(dx: -100, dy: 30, itemCount: 2), 1)
   }
 
+  func testScrollSpeedLeavesTheDefaultUntouched() {
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(3, speed: 1), 3)
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(-3, speed: 1), -3)
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(0, speed: 4), 0)
+  }
+
+  func testScrollSpeedScalesAndKeepsDirection() {
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(2, speed: 3), 6)
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(-2, speed: 3), -6)
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(1, speed: 2.5), 3)  // rounds
+  }
+
+  /// Rounding a small delta to zero would make the wheel stop working entirely, so a
+  /// step always survives as at least one unit in its original direction.
+  func testScrollSpeedNeverRoundsAStepAwayToNothing() {
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(1, speed: 0.1), 1)
+    XCTAssertEqual(GestureEngine.scaledScrollDelta(-1, speed: 0.1), -1)
+  }
+
+  /// The trackpad must keep macOS's own behaviour; only wheel steps are touched.
+  func testTrackpadScrollingIsNotReversed() {
+    XCTAssertFalse(
+      GestureEngine.shouldReverseScroll(isContinuous: true, separateMouseScrolling: true))
+    XCTAssertTrue(
+      GestureEngine.shouldReverseScroll(isContinuous: false, separateMouseScrolling: true))
+  }
+
   func testRingCentreCancelsSelection() {
     XCTAssertNil(ActionRingSelection.index(dx: 4, dy: -8, itemCount: 6))
   }

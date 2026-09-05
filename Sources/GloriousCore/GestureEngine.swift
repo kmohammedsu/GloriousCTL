@@ -49,6 +49,8 @@ public final class GestureEngine: ObservableObject {
   /// time so a long sweep fires repeatedly instead of once.
   private var repeatAnchorX: CGFloat = 0
   private var repeatDidFire = false
+  /// Multiplier applied to discrete wheel steps. 1 leaves macOS alone.
+  public var scrollSpeed: Double = 1
   private var ringIsVisible = false
   private var ringSelection: Int?
   private var activeRingItems: [ActionRingItem] = []
@@ -168,7 +170,7 @@ public final class GestureEngine: ObservableObject {
     }
 
     if type == .scrollWheel {
-      reverseDiscreteScrollIfNeeded(event)
+      adjustDiscreteScrollIfNeeded(event)
       return Unmanaged.passUnretained(event)
     }
 
@@ -312,22 +314,40 @@ public final class GestureEngine: ObservableObject {
     separateMouseScrolling && !isContinuous
   }
 
-  private func reverseDiscreteScrollIfNeeded(_ event: CGEvent) {
+  /// Scales one wheel delta. A notch must never round away to nothing, or the wheel
+  /// would go dead at low multipliers, so the magnitude is kept at one minimum.
+  nonisolated public static func scaledScrollDelta(_ value: Int64, speed: Double) -> Int64 {
+    guard value != 0, speed != 1 else { return value }
+    let scaled = (Double(value) * speed).rounded()
+    if scaled == 0 { return value > 0 ? 1 : -1 }
+    return Int64(scaled)
+  }
+
+  private static let scrollDeltaFields: [CGEventField] = [
+    .scrollWheelEventDeltaAxis1, .scrollWheelEventDeltaAxis2, .scrollWheelEventDeltaAxis3,
+    .scrollWheelEventPointDeltaAxis1, .scrollWheelEventPointDeltaAxis2,
+    .scrollWheelEventPointDeltaAxis3, .scrollWheelEventFixedPtDeltaAxis1,
+    .scrollWheelEventFixedPtDeltaAxis2, .scrollWheelEventFixedPtDeltaAxis3,
+  ]
+
+  /// Direction and speed both act on the wheel only. Continuous events come from the
+  /// trackpad and are left exactly as macOS produced them.
+  private func adjustDiscreteScrollIfNeeded(_ event: CGEvent) {
     let isContinuous = event.getIntegerValueField(.scrollWheelEventIsContinuous) != 0
-    guard
-      Self.shouldReverseScroll(
-        isContinuous: isContinuous,
-        separateMouseScrolling: separateMouseScrolling)
-    else { return }
-    let fields: [CGEventField] = [
-      .scrollWheelEventDeltaAxis1, .scrollWheelEventDeltaAxis2, .scrollWheelEventDeltaAxis3,
-      .scrollWheelEventPointDeltaAxis1, .scrollWheelEventPointDeltaAxis2,
-      .scrollWheelEventPointDeltaAxis3, .scrollWheelEventFixedPtDeltaAxis1,
-      .scrollWheelEventFixedPtDeltaAxis2, .scrollWheelEventFixedPtDeltaAxis3,
-    ]
-    for field in fields {
+    guard !isContinuous else { return }
+
+    let reverse = Self.shouldReverseScroll(
+      isContinuous: isContinuous,
+      separateMouseScrolling: separateMouseScrolling)
+    let speed = scrollSpeed
+    guard reverse || speed != 1 else { return }
+
+    for field in Self.scrollDeltaFields {
       let value = event.getIntegerValueField(field)
-      if value != .min { event.setIntegerValueField(field, value: -value) }
+      guard value != .min else { continue }
+      var updated = Self.scaledScrollDelta(value, speed: speed)
+      if reverse { updated = -updated }
+      event.setIntegerValueField(field, value: updated)
     }
   }
 
