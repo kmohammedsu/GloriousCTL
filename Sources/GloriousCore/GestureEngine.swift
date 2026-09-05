@@ -80,8 +80,8 @@ public final class GestureEngine: ObservableObject {
           "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
   }
 
-  public func previewActionRing() {
-    let ring = rings[.middle] ?? ActionRingConfiguration.defaultConfiguration(for: .middle)
+  public func previewActionRing(for button: PhysicalButton = .middle) {
+    let ring = rings[button] ?? ActionRingConfiguration.defaultConfiguration(for: button)
     activeRingItems = ring.items
     startLocation = CGEvent(source: nil)?.location ?? .zero
     ringIsVisible = true

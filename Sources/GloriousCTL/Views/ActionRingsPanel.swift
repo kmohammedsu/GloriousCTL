@@ -6,24 +6,31 @@ import SwiftUI
 struct ActionRingsPanel: View {
   @EnvironmentObject private var controller: DeviceController
   @State private var expandedButton: PhysicalButton? = .middle
+  @State private var selectedItemID: UUID?
+  /// Captured from the enclosing scroll view so clicking a bubble can bring its
+  /// row into view.
+  @State private var scrollProxy: ScrollViewProxy?
 
   private let ringButtons: [PhysicalButton] = [.middle, .back, .forward]
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      if !controller.gestures.hasAccessibilityPermission {
-        permissionGate
-      }
+    ScrollViewReader { proxy in
+      VStack(alignment: .leading, spacing: 10) {
+        if !controller.gestures.hasAccessibilityPermission {
+          permissionGate
+        }
 
-      ForEach(ringButtons, id: \.self) { button in
-        ringSection(button)
-      }
+        ForEach(ringButtons, id: \.self) { button in
+          ringSection(button)
+        }
 
-      Text(
-        "Quick press keeps the normal click. Hold to open, drag toward a bubble, then release to run it. Releasing in the centre cancels and closes the ring."
-      )
-      .font(.system(size: 9)).foregroundStyle(Theme.textDim)
-      .fixedSize(horizontal: false, vertical: true)
+        Text(
+          "Quick press keeps the normal click. Hold to open, drag toward a bubble, then release to run it. Releasing in the centre cancels and closes the ring."
+        )
+        .font(.system(size: 9)).foregroundStyle(Theme.textDim)
+        .fixedSize(horizontal: false, vertical: true)
+      }
+      .onAppear { scrollProxy = proxy }
     }
   }
 
@@ -97,8 +104,62 @@ struct ActionRingsPanel: View {
             .help(String(format: "Hold for %.2f seconds to open the ring", ring.holdDuration))
         }
 
+        HStack(alignment: .top, spacing: 8) {
+          RingPreview(
+            items: ring.items,
+            selectedID: selectedItemID,
+            onSelect: { id in
+              selectedItemID = id
+              withAnimation { scrollProxy?.scrollTo(id, anchor: .center) }
+            },
+            onMove: { from, to in
+              update(button) { ring in
+                guard ring.items.indices.contains(from) else { return }
+                let moved = ring.items.remove(at: from)
+                ring.items.insert(moved, at: min(max(to, 0), ring.items.count))
+              }
+            })
+          VStack(alignment: .leading, spacing: 4) {
+            Button {
+              update(button) { ring in
+                guard ring.items.count < 8 else { return }
+                let item = ActionRingItem()
+                ring.items.append(item)
+                selectedItemID = item.id
+              }
+            } label: {
+              Label("Add item", systemImage: "plus")
+            }
+            .buttonStyle(PlateButtonStyle(wide: false, accented: true))
+            .disabled(ring.items.count >= 8)
+
+            Text(
+              ring.items.isEmpty
+                ? "Add items and they appear here, spaced evenly from the top."
+                : "Click a bubble to edit it. Drag one onto another slot to change "
+                  + "the order — the slots stay put, the items swap."
+            )
+            .font(.system(size: 8)).foregroundStyle(Theme.textDim)
+            .fixedSize(horizontal: false, vertical: true)
+
+            Button("Show full size") {
+              controller.gestures.previewActionRing(for: button)
+            }
+            .buttonStyle(PlateButtonStyle(wide: false))
+            .disabled(ring.items.isEmpty)
+          }
+        }
+        .padding(.vertical, 2)
+
         ForEach(ring.items) { item in
           itemEditor(button: button, itemID: item.id)
+            .id(item.id)
+            .overlay(
+              RoundedRectangle(cornerRadius: Theme.corner)
+                .stroke(
+                  selectedItemID == item.id ? Theme.accent : .clear,
+                  lineWidth: 1))
+            .onTapGesture { selectedItemID = item.id }
         }
 
         HStack {
