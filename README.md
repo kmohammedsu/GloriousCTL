@@ -357,11 +357,13 @@ optional labels, and a hold-delay slider](Assets/feature-actionring.jpg)
 ### Gestures
 
 Reserve the middle or side buttons for directional actions: hold, drag, and release.
-A quick click without dragging still does its normal job, so you don't lose the
-button.
+Each button gets five slots — one per drag direction, plus the plain click. A quick
+click without dragging still does its normal job, so you don't lose the button.
 
-![The Gestures panel: checkboxes to reserve Side Back, Side Forward and Middle Click
-for directional actions](Assets/feature-gestures.jpg)
+![The Gestures panel with Side Back enabled and expanded: Click (no drag) mapped to
+Back, Drag Up to Mission Control, Drag Down to Application Windows, and Drag Left and
+Right to Move a Space, with Side Forward and Middle Click available
+below](Assets/feature-gestures.jpg)
 
 ### Scroll direction, fixed properly
 
