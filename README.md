@@ -19,7 +19,7 @@ restarts, and they follow the mouse if you plug it into a different computer.
 
 ![The GloriousCTL main window: a sidebar of configuration sections on the left, an
 interactive picture of the Model O with numbered buttons in the middle, and an
-inspector panel for the selected button on the right](Assets/GloriousCTL-1.4-preview.png)
+inspector panel for the selected button on the right](Assets/feature-buttons.jpg)
 
 ---
 
@@ -406,8 +406,9 @@ radially — Mission Control, Application Windows, Show Desktop, Launchpad,
 Spotlight, Screenshot Selection, Lock Screen and Play/Pause — with the hovered
 item highlighted](Assets/ActionRing-preview.png)
 
-![The Actions Ring editor: a list of configurable slots with action dropdowns,
-optional labels, and a hold-delay slider](Assets/feature-actionring.jpg)
+![The Actions Ring panel: a live ring preview with the items on their compass
+slots, an Add item button, and the list of slots below with action menus and
+optional labels](Assets/feature-actionring.jpg)
 
 **A live preview sits next to the list**, showing the ring exactly as it will appear.
 Click a bubble to jump to its row, or drag one onto another slot to change the order.
@@ -457,8 +458,8 @@ A **scroll speed** slider sits alongside it, from *macOS default* up to *Fastest
 wheel sends discrete steps and macOS moves a fixed few lines per step, which feels slow
 next to a trackpad. Like the direction fix, it only touches the wheel.
 
-![The Scrolling panel: a Fix mouse wheel direction toggle, with a note that trackpad
-gestures pass through unchanged](Assets/feature-scrolling.jpg)
+![The Scrolling panel: a Fix mouse wheel direction toggle and a Scroll speed slider,
+with a note that trackpad gestures pass through unchanged](Assets/feature-scrolling.jpg)
 
 ### Honest about what isn't decoded
 
