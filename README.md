@@ -35,6 +35,7 @@ inspector panel for the selected button on the right](Assets/GloriousCTL-1.4-pre
 
 **When something goes wrong**
 - [Troubleshooting](#troubleshooting)
+- [Moving between desktops does nothing](#moving-between-desktops-does-nothing)
 
 **What it can do**
 - [Features](#features)
@@ -115,9 +116,19 @@ Karabiner and similar tools require. (Technically: `IOHIDDeviceOpen` returns
 The app detects this situation and walks you through it on the Overview tab, so you
 don't have to remember the steps.
 
-**Doing more than basic button remapping?** Action Rings and drags need a *second,
-separate* permission called **Accessibility**, in the same Privacy & Security section.
-The app prompts you for it only when you turn those features on.
+**Doing more than basic button remapping?** Two further permissions come up, both in
+the same Privacy & Security section, and the app asks for each only when you first use
+something that needs it:
+
+| Permission | Needed for |
+|---|---|
+| **Accessibility** | Action Rings and directional drags — they intercept a held mouse button |
+| **Automation** (System Events) | Actions macOS performs through a system shortcut, such as moving between desktops |
+
+The Automation one is worth understanding. macOS ignores synthetic key presses for the
+shortcuts it handles itself, so those actions are delivered through System Events
+instead. If you decline it, moving between desktops does nothing — the app writes a
+line to its log saying so, but there is no visible error.
 
 ---
 
@@ -299,6 +310,28 @@ These need the **Accessibility** permission, which is separate from Input Monito
 Also check the feature is switched on in its panel. The middle-button ring is on by
 default; the two side-button rings are opt-in.
 
+## Moving between desktops does nothing
+
+macOS ignores synthetic key presses for the shortcuts it handles itself, so this action
+is sent through **System Events** instead. Two things can stop it:
+
+**Automation access was declined.** Open **System Settings → Privacy & Security →
+Automation**, find **GloriousCTL**, and enable **System Events**. The app logs
+`System Events refused the keystroke` when this happens.
+
+**The system shortcut has no key assigned.** Moving between desktops still relies on
+the macOS shortcut existing. Check **Keyboard → Keyboard Shortcuts → Mission Control**
+and confirm *Move left a space* and *Move right a space* show `⌃←` and `⌃→`. If they
+are ticked but blank, the app cannot trigger them — see
+[Permission was working, then stopped after an update](#permission-was-working-then-stopped-after-an-update)
+for how these entries get into that state.
+
+**Something else is intercepting the shortcut.** Mouse and keyboard utilities that
+install their own event tap — BetterMouse, Karabiner, and similar — can swallow
+Ctrl+arrow before macOS sees it. Quit them and try again. A quick check: press
+**Ctrl+→** on the keyboard. If the desktop does not move for that either, the problem
+is not this app.
+
 ## An Action Ring item does nothing when I pick it
 
 If it's a built-in Mac action such as Mission Control or Spotlight, its keyboard
@@ -376,6 +409,19 @@ item highlighted](Assets/ActionRing-preview.png)
 ![The Actions Ring editor: a list of configurable slots with action dropdowns,
 optional labels, and a hold-delay slider](Assets/feature-actionring.jpg)
 
+**A live preview sits next to the list**, showing the ring exactly as it will appear.
+Click a bubble to jump to its row, or drag one onto another slot to change the order.
+
+Slots are the eight compass points, filled north, south, east, west and then the
+diagonals. They are fixed: adding a fifth item drops it into the north-east slot and
+leaves the first four where they were. Spacing items evenly by count instead would
+rotate everything on each edit, and a radial menu is fast precisely because the
+direction is remembered.
+
+Picking an action opens a menu grouped into submenus — Spaces & Windows, System,
+Media, Editing, Tabs & View, Mouse Buttons — so the list stays eight rows deep instead
+of running off the window.
+
 Move onto an item and release to run it. Releasing in the centre leaves the ring open
 so you can hover and click instead. The middle-button ring is on by default; the two
 side rings are opt-in, and rings can coexist with gestures on the same button.
@@ -406,6 +452,10 @@ button, since both are the same gesture: hold, then move.
 macOS applies one scroll direction to everything. This flips the mouse wheel **without**
 inverting your trackpad — trackpad gestures pass through untouched, and only discrete
 wheel steps are reversed.
+
+A **scroll speed** slider sits alongside it, from *macOS default* up to *Fastest*. A
+wheel sends discrete steps and macOS moves a fixed few lines per step, which feels slow
+next to a trackpad. Like the direction fix, it only touches the wheel.
 
 ![The Scrolling panel: a Fix mouse wheel direction toggle, with a note that trackpad
 gestures pass through unchanged](Assets/feature-scrolling.jpg)
