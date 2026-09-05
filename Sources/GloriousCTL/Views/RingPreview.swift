@@ -101,11 +101,11 @@ struct RingPreview: View {
           })
   }
 
-  /// Matches `ActionRingOverlay`: `π/2 − 2π·index/count`, clockwise from the top.
-  /// SwiftUI's y axis points down, so the sine term is subtracted rather than added.
+  /// Shares `ActionRingLayout` with the real overlay so the preview cannot drift
+  /// from it. SwiftUI's y axis points down, so the sine term is subtracted.
   private func slotOffset(for index: Int) -> CGSize {
     guard !items.isEmpty else { return .zero }
-    let angle = CGFloat.pi / 2 - (2 * .pi * CGFloat(index) / CGFloat(items.count))
+    let angle = CGFloat(ActionRingLayout.drawingAngle(for: index))
     return CGSize(width: cos(angle) * orbit, height: -sin(angle) * orbit)
   }
 

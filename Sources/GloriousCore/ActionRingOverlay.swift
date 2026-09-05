@@ -83,7 +83,7 @@ final class ActionRingView: NSView {
 
     let bubbleRadius: CGFloat = 112
     for (index, item) in items.enumerated() {
-      let angle = CGFloat.pi / 2 - (2 * CGFloat.pi * CGFloat(index) / CGFloat(items.count))
+      let angle = CGFloat(ActionRingLayout.drawingAngle(for: index))
       let bubblePoint = CGPoint(
         x: center.x + cos(angle) * bubbleRadius,
         y: center.y + sin(angle) * bubbleRadius)

@@ -167,11 +167,43 @@ final class ActionRingTests: XCTestCase {
     XCTAssertFalse(ActionRingConfiguration.defaultConfiguration(for: .forward).enabled)
   }
 
-  func testRingSelectionStartsAtTopAndRunsClockwise() {
-    XCTAssertEqual(ActionRingSelection.index(dx: 0, dy: -100, itemCount: 4), 0)
-    XCTAssertEqual(ActionRingSelection.index(dx: 100, dy: 0, itemCount: 4), 1)
-    XCTAssertEqual(ActionRingSelection.index(dx: 0, dy: 100, itemCount: 4), 2)
-    XCTAssertEqual(ActionRingSelection.index(dx: -100, dy: 0, itemCount: 4), 3)
+  func testSlotsFillNorthSouthEastWestThenDiagonals() {
+    // north, south, east, west, then NE, SE, SW, NW
+    let expected: [Double] = [0, .pi, .pi / 2, 3 * .pi / 2, .pi / 4, 3 * .pi / 4, 5 * .pi / 4, 7 * .pi / 4]
+    XCTAssertEqual(ActionRingLayout.capacity, 8)
+    for (index, angle) in expected.enumerated() {
+      XCTAssertEqual(ActionRingLayout.compassAngle(for: index), angle, accuracy: 1e-9)
+    }
+  }
+
+  func testRingSelectionMapsDirectionsToFixedSlots() {
+    XCTAssertEqual(ActionRingSelection.index(dx: 0, dy: -100, itemCount: 4), 0)  // north
+    XCTAssertEqual(ActionRingSelection.index(dx: 0, dy: 100, itemCount: 4), 1)  // south
+    XCTAssertEqual(ActionRingSelection.index(dx: 100, dy: 0, itemCount: 4), 2)  // east
+    XCTAssertEqual(ActionRingSelection.index(dx: -100, dy: 0, itemCount: 4), 3)  // west
+    XCTAssertEqual(ActionRingSelection.index(dx: 100, dy: -100, itemCount: 5), 4)  // north-east
+  }
+
+  /// Adding an item must not move the ones already placed — that is the whole point
+  /// of fixed slots, and the property most easily broken by a layout change.
+  func testAddingAnItemDoesNotMoveExistingOnes() {
+    for count in 1...ActionRingLayout.capacity {
+      XCTAssertEqual(
+        ActionRingSelection.index(dx: 0, dy: -100, itemCount: count), 0,
+        "north should stay slot 0 with \(count) items")
+    }
+    for count in 2...ActionRingLayout.capacity {
+      XCTAssertEqual(
+        ActionRingSelection.index(dx: 0, dy: 100, itemCount: count), 1,
+        "south should stay slot 1 with \(count) items")
+    }
+  }
+
+  /// A two-item ring should split the circle in half rather than leaving most of it
+  /// dead, so the targets stay large even though the positions are fixed.
+  func testSparseRingsStillHaveLargeTargets() {
+    XCTAssertEqual(ActionRingSelection.index(dx: 100, dy: -30, itemCount: 2), 0)
+    XCTAssertEqual(ActionRingSelection.index(dx: -100, dy: 30, itemCount: 2), 1)
   }
 
   func testRingCentreCancelsSelection() {
